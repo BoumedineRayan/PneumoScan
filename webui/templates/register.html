@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inscription - Assistant radiologue</title>
+<style>
+  :root { --green-dark:#1B5E3F; --green:#2E8B57; --green-soft:#E6F4EC;
+    --green-line:#BFE0CD; --ink:#18211C; --grey:#5C6B62; --bg:#F7FAF8; --red:#B3261E; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    display:grid; place-items:center; min-height:100vh; }
+  .card { background:#fff; border:1px solid var(--green-line); border-radius:16px;
+    padding:36px 32px; width:100%; max-width:380px; }
+  .logo { width:44px; height:44px; border-radius:11px; background:var(--green-dark);
+    display:grid; place-items:center; color:#fff; font-weight:700; font-size:22px; margin-bottom:16px; }
+  h1 { font-size:1.35rem; color:var(--green-dark); margin:0 0 4px; }
+  .sub { color:var(--grey); font-size:0.88rem; margin-bottom:24px; }
+  label { display:block; font-size:0.82rem; color:var(--grey); margin:14px 0 5px; }
+  input { width:100%; padding:11px 13px; border:1.5px solid var(--green-line);
+    border-radius:9px; font-size:0.95rem; }
+  input:focus { outline:none; border-color:var(--green); }
+  .hint { font-size:0.75rem; color:var(--grey); margin-top:4px; }
+  button { width:100%; margin-top:22px; background:var(--green-dark); color:#fff;
+    border:0; padding:13px; border-radius:9px; font-size:1rem; font-weight:600; cursor:pointer; }
+  button:hover { background:var(--green); }
+  .alt { text-align:center; margin-top:18px; font-size:0.88rem; color:var(--grey); }
+  .alt a { color:var(--green-dark); font-weight:600; text-decoration:none; }
+  .error { background:#FCEBEA; color:var(--red); padding:10px 12px; border-radius:8px;
+    font-size:0.85rem; margin-bottom:8px; }
+</style>
+</head>
+<body>
+  <form class="card" method="post" action="/register">
+    <div class="logo">R</div>
+    <h1>Creer un compte</h1>
+    <div class="sub">Assistant radiologue virtuel</div>
+    {% if error %}<div class="error">{{ error }}</div>{% endif %}
+    <label for="username">Nom d'utilisateur</label>
+    <input type="text" id="username" name="username" required autofocus>
+    <div class="hint">Au moins 3 caracteres</div>
+    <label for="password">Mot de passe</label>
+    <input type="password" id="password" name="password" required>
+    <div class="hint">Au moins 6 caracteres</div>
+    <button type="submit">Creer mon compte</button>
+    <div class="alt">Deja un compte ? <a href="/login">Se connecter</a></div>
+  </form>
+</body>
+</html>
