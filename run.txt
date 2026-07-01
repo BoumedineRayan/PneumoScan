@@ -1,0 +1,40 @@
+Lancer le projet si .venv marche
+
+
+.venv\Scripts\activate
+
+pip install fastapi "uvicorn[standard]" python-multipart reportlab
+
+uvicorn app.server:app --port 8000
+
+http://localhost:8000
+
+
+
+
+
+
+
+
+
+.venv 
+
+# 1. Supprimer le venv cassé
+Remove-Item -Recurse -Force .venv
+
+# 2. En recréer un propre en Python 3.11
+py -3.11 -m venv .venv
+
+# 3. L'activer
+.venv\Scripts\activate
+
+# 4. Vérifier
+python --version
+
+python -m pip install --upgrade pip
+pip install torch --index-url https://download.pytorch.org/whl/cu121
+pip install transformers accelerate bitsandbytes huggingface_hub
+pip install fastapi "uvicorn[standard]" python-multipart pillow reportlab
+
+
+python -c "import torch; print(torch.cuda.is_available())"
