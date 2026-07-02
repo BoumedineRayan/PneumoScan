@@ -1,4 +1,4 @@
-# Assistant radiologue virtuel — application unifiée
+# Assistant radiologue virtuel — PneumoScan
 
 Prototype pédagogique d'analyse de radiographies thoraciques frontales.
 Une seule application qui gère : comptes utilisateurs, analyse par MedGemma 4B,
