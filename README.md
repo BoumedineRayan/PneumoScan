@@ -49,20 +49,6 @@ puis ouvre http://localhost:8000 . Crée un compte, connecte-toi, analyse.
 
 **Un seul terminal, un seul port, une seule interface.**
 
-## Architecture
-
-```
-[Navigateur] -> [App FastAPI unique]
-                   ├── comptes (auth.py, database.py)
-                   ├── MedGemma (model.py) chargé en mémoire
-                   ├── garde-fous (prompts.py)
-                   ├── rapport PDF (report.py)
-                   └── logs (storage.py) + historique (database.py)
-```
-
-Contrairement à une architecture séparée, le modèle est chargé DANS l'app :
-l'analyse ne fait aucun appel réseau externe. Simple et rapide, mais nécessite
-un GPU local (donc non hébergeable sur un service sans GPU comme Railway).
 
 ## Structure
 
