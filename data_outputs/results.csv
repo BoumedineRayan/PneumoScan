@@ -1,2 +1,5 @@
 ts,filename,prompt_variant,predicted_class,confidence,image_quality,justification,visual_evidence,limitations,latency_s
 1782983116.4,WhatsApp Image 2026-06-29 at 14.57.30.jpeg,baseline,normal,0.99,good,The lungs appear clear.,no obvious opacity,No specific findings are identified.,10.0
+1782995154.0,WhatsApp Image 2026-06-29 at 14.57.30.jpeg,baseline,normal,0.99,good,The lungs appear clear.,no obvious opacity,No specific findings are identified.,17.1
+1782995167.5,WhatsApp Image 2026-06-29 at 14.57.31.jpeg,baseline,normal,0.99,good,The lungs appear clear.,no obvious opacity,No specific findings are identified.,5.6
+1782995189.5,WhatsApp Image 2026-06-29 at 14.57.31 (2).jpeg,baseline,uncertain,0.2,good,possible opacity in the right lower lung field,one short observation,limited view of the lung bases,15.0

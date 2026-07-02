@@ -5,53 +5,64 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tableau de bord - Assistant radiologue</title>
 <style>
-  :root { --green-dark:#1B5E3F; --green:#2E8B57; --green-soft:#E6F4EC;
-    --green-line:#BFE0CD; --ink:#18211C; --grey:#5C6B62; --bg:#F7FAF8;
-    --amber:#C9821B; --amber-soft:#FBF1DE; --uncertain:#6B7A71; --uncertain-soft:#ECEFED; }
+  /* Palette de couleurs modifiée pour le Bleu */
+  :root { 
+    --blue-dark:#1E3A8A;   /* Bleu foncé principal */
+    --blue:#3B82F6;        /* Bleu vif pour les accents */
+    --blue-soft:#EFF6FF;   /* Fond bleu très clair */
+    --blue-line:#BFDBFE;   /* Bordures bleues */
+    --ink:#111827; 
+    --grey:#6B7280; 
+    --bg:#F9FAFB;
+    --amber:#C9821B; 
+    --amber-soft:#FBF1DE; 
+    --uncertain:#6B7A71; 
+    --uncertain-soft:#ECEFED; 
+  }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--ink);
     font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.55; }
-  .topbar { background:#fff; border-bottom:1px solid var(--green-line);
+  .topbar { background:#fff; border-bottom:1px solid var(--blue-line);
     padding:14px 24px; display:flex; align-items:center; justify-content:space-between; }
   .brand { display:flex; align-items:center; gap:10px; }
-  .logo { width:34px; height:34px; border-radius:9px; background:var(--green-dark);
-    display:grid; place-items:center; color:#fff; font-weight:700; }
-  .brand b { color:var(--green-dark); }
+  /* Ajustement de la classe logo pour accueillir une image proprement */
+  .logo { width:34px; height:34px; border-radius:9px; object-fit:cover; }
+  .brand b { color:var(--blue-dark); }
   .user { font-size:0.88rem; color:var(--grey); }
-  .user a { color:var(--green-dark); font-weight:600; text-decoration:none; margin-left:12px; }
+  .user a { color:var(--blue-dark); font-weight:600; text-decoration:none; margin-left:12px; }
   .wrap { max-width:1000px; margin:0 auto; padding:28px 20px 60px; }
   .grid { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
   @media (max-width:820px){ .grid{ grid-template-columns:1fr; } }
-  .card { background:#fff; border:1px solid var(--green-line); border-radius:14px; padding:20px; }
+  .card { background:#fff; border:1px solid var(--blue-line); border-radius:14px; padding:20px; }
   .card h2 { font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em;
-    color:var(--green); margin:0 0 14px; }
+    color:var(--blue); margin:0 0 14px; }
   input[type=file]{ display:none; }
-  .drop { display:block; border:1.5px dashed var(--green-line); border-radius:12px;
-    padding:28px 16px; text-align:center; cursor:pointer; background:var(--green-soft); }
-  .drop:hover { border-color:var(--green); }
+  .drop { display:block; border:1.5px dashed var(--blue-line); border-radius:12px;
+    padding:28px 16px; text-align:center; cursor:pointer; background:var(--blue-soft); }
+  .drop:hover { border-color:var(--blue); }
   .drop.hidden { display:none; }
   .hint { color:var(--grey); font-size:0.86rem; }
   #previewWrap { text-align:center; }
   #preview { max-width:100%; max-height:220px; border-radius:10px; margin:0 auto; display:block; }
-  .btn-change { margin-top:10px; background:#fff; border:1.5px solid var(--green-line);
-    color:var(--green-dark); padding:7px 14px; border-radius:8px; cursor:pointer; font-size:0.82rem; }
+  .btn-change { margin-top:10px; background:#fff; border:1.5px solid var(--blue-line);
+    color:var(--blue-dark); padding:7px 14px; border-radius:8px; cursor:pointer; font-size:0.82rem; }
   .choices { display:flex; gap:10px; margin-top:6px; }
-  .choice { flex:1; border:1.5px solid var(--green-line); border-radius:10px; padding:11px;
+  .choice { flex:1; border:1.5px solid var(--blue-line); border-radius:10px; padding:11px;
     cursor:pointer; text-align:center; }
   .choice input { display:none; }
-  .choice.selected { border-color:var(--green); background:var(--green-soft); }
-  .choice .name { font-weight:600; color:var(--green-dark); font-size:0.92rem; }
+  .choice.selected { border-color:var(--blue); background:var(--blue-soft); }
+  .choice .name { font-weight:600; color:var(--blue-dark); font-size:0.92rem; }
   .choice .desc { font-size:0.74rem; color:var(--grey); }
-  button.run { width:100%; margin-top:16px; background:var(--green-dark); color:#fff; border:0;
+  button.run { width:100%; margin-top:16px; background:var(--blue-dark); color:#fff; border:0;
     padding:13px; border-radius:9px; font-weight:600; cursor:pointer; }
-  button.run:hover{ background:var(--green); }
-  button.run:disabled{ background:#9DB5A8; cursor:not-allowed; }
+  button.run:hover{ background:var(--blue); }
+  button.run:disabled{ background:#BFDBFE; cursor:not-allowed; }
   .spinner{ display:none; text-align:center; color:var(--grey); margin-top:14px; }
   .spinner.on{ display:block; }
   .pill{ display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border-radius:999px;
     font-weight:600; }
   .pill .dot{ width:11px; height:11px; border-radius:50%; }
-  .pill.normal{ background:var(--green-soft); color:var(--green-dark);} .pill.normal .dot{ background:var(--green);}
+  .pill.normal{ background:var(--blue-soft); color:var(--blue-dark);} .pill.normal .dot{ background:var(--blue);}
   .pill.suspected_opacity{ background:var(--amber-soft); color:var(--amber);} .pill.suspected_opacity .dot{ background:var(--amber);}
   .pill.uncertain{ background:var(--uncertain-soft); color:var(--uncertain);} .pill.uncertain .dot{ background:var(--uncertain);}
   #result{ display:none; margin-top:16px; }
@@ -62,20 +73,25 @@
     padding:10px 12px; border-radius:6px; font-size:0.82rem; color:#7A5410; }
   /* Historique */
   table{ width:100%; border-collapse:collapse; font-size:0.85rem; }
-  th{ text-align:left; color:var(--grey); font-weight:600; padding:8px 6px; border-bottom:2px solid var(--green-line); }
+  th{ text-align:left; color:var(--grey); font-weight:600; padding:8px 6px; border-bottom:2px solid var(--blue-line); }
   td{ padding:8px 6px; border-bottom:1px solid #EEF3F0; }
   .tag{ padding:2px 8px; border-radius:999px; font-size:0.76rem; font-weight:600; }
-  .tag.normal{ background:var(--green-soft); color:var(--green-dark);}
+  .tag.normal{ background:var(--blue-soft); color:var(--blue-dark);}
   .tag.suspected_opacity{ background:var(--amber-soft); color:var(--amber);}
   .tag.uncertain{ background:var(--uncertain-soft); color:var(--uncertain);}
   .empty{ color:var(--grey); font-size:0.88rem; text-align:center; padding:20px; }
 </style>
 </head>
 <body>
+
   <div class="topbar">
-    <div class="brand"><div class="logo">Ps</div><b>Assistant radiologue virtuel</b></div>
-    <div class="user">Connecte : <b>{{ username }}</b><a href="/logout">Deconnexion</a></div>
+  <div class="brand">
+    <!-- Correction ici : 'logo.png' au lieu de 'Logo.png' -->
+    <img src="/static/logo.png" alt="Logo" class="logo">
+    <b>PneumoScan</b>
   </div>
+  <div class="user">Connecté : <b>{{ username }}</b><a href="/logout">Déconnexion</a></div>
+</div>
 
   <div class="wrap">
     <div class="grid">
@@ -86,7 +102,7 @@
           <span class="hint">Cliquez pour choisir une radiographie frontale</span>
         </label>
         <div id="previewWrap" style="display:none; margin-top:12px;">
-          <img id="preview" alt="apercu">
+          <img id="preview" alt="aperçu">
           <button type="button" class="btn-change" id="changeBtn">Changer d'image</button>
         </div>
         <div style="margin-top:14px;">
@@ -97,7 +113,7 @@
             </label>
             <label class="choice" data-variant="improved">
               <input type="radio" name="variant" value="improved">
-              <div class="name">Ameliore</div><div class="desc">Prudence</div>
+              <div class="name">Amélioré</div><div class="desc">Prudence</div>
             </label>
           </div>
         </div>
@@ -108,20 +124,20 @@
           <span class="pill" id="pill"><span class="dot"></span><span id="pillText"></span></span>
           <div class="meta">
             <div>Confiance <strong id="mConf"></strong></div>
-            <div>Qualite <strong id="mQual"></strong></div>
+            <div>Qualité <strong id="mQual"></strong></div>
             <div>Latence <strong id="mLat"></strong></div>
-            <div>Methode <strong id="mVar"></strong></div>
+            <div>Méthode <strong id="mVar"></strong></div>
           </div>
           <div id="justBlock"><strong>Justification :</strong> <span id="just"></span></div>
           <div class="warn" id="warn"></div>
-          <button type="button" class="btn-change" id="pdfBtn" style="margin-top:12px;">Telecharger le rapport PDF</button>
+          <button type="button" class="btn-change" id="pdfBtn" style="margin-top:12px;">Télécharger le rapport PDF</button>
         </div>
       </div>
 
       <div class="card">
         <h2>Mon historique</h2>
         <table>
-          <thead><tr><th>Fichier</th><th>Classe</th><th>Conf.</th><th>Methode</th></tr></thead>
+          <thead><tr><th>Fichier</th><th>Classe</th><th>Conf.</th><th>Méthode</th></tr></thead>
           <tbody>
           {% for a in analyses %}
             <tr>
@@ -134,7 +150,7 @@
           </tbody>
         </table>
         {% if not analyses %}
-        <div class="empty" id="emptyMsg">Aucune analyse pour le moment.<br>Lancez votre premiere analyse a gauche.</div>
+        <div class="empty" id="emptyMsg">Aucune analyse pour le moment.<br>Lancez votre première analyse à gauche.</div>
         {% endif %}
       </div>
     </div>
@@ -164,16 +180,15 @@
       document.getElementById('spinner').classList.remove('on'); runBtn.disabled=false;
       if(d.error){ alert('Erreur : '+d.error); return; }
       render(d);
-      addToHistory(d);  // met a jour l'historique SANS recharger la page
+      addToHistory(d);
     }catch(e){ document.getElementById('spinner').classList.remove('on'); runBtn.disabled=false; alert('Erreur : '+e); }
   });
 
-  // Ajoute la nouvelle analyse en haut du tableau d'historique, sans reload
   function addToHistory(d){
     const table = document.querySelector('table tbody');
     if(!table) { return; }
     const emptyMsg = document.getElementById('emptyMsg');
-    if(emptyMsg) { emptyMsg.remove(); }  // retire le "aucune analyse"
+    if(emptyMsg) { emptyMsg.remove(); }
     const tr = document.createElement('tr');
     const conf = (d.confidence ?? 0).toFixed(2);
     tr.innerHTML = '<td>'+(d.filename||'-')+'</td>'
@@ -186,8 +201,8 @@
   let lastResult = null;
 
   function render(d){
-    lastResult = d;  // memorise pour le PDF
-    const cls=d.predicted_class, labels={normal:'Normal',suspected_opacity:"Suspicion d'opacite",uncertain:'Incertain'};
+    lastResult = d;
+    const cls=d.predicted_class, labels={normal:'Normal',suspected_opacity:"Suspicion d'opacité",uncertain:'Incertain'};
     const pill=document.getElementById('pill'); pill.className='pill '+cls;
     document.getElementById('pillText').textContent=labels[cls]||cls;
     document.getElementById('mConf').textContent=(d.confidence??0).toFixed(2);
@@ -201,7 +216,6 @@
     document.getElementById('result').style.display='block';
   }
 
-  // Telechargement du rapport PDF
   document.getElementById('pdfBtn').addEventListener('click', async ()=>{
     if(!lastResult){ return; }
     try{
@@ -216,7 +230,6 @@
       URL.revokeObjectURL(url);
     }catch(e){ alert('Erreur PDF : '+e); }
   });
-
 </script>
 </body>
 </html>
