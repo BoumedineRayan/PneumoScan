@@ -114,12 +114,12 @@
           </div>
           <div id="justBlock"><strong>Justification :</strong> <span id="just"></span></div>
           <div class="warn" id="warn"></div>
+          <button type="button" class="btn-change" id="pdfBtn" style="margin-top:12px;">Telecharger le rapport PDF</button>
         </div>
       </div>
 
       <div class="card">
         <h2>Mon historique</h2>
-        {% if analyses %}
         <table>
           <thead><tr><th>Fichier</th><th>Classe</th><th>Conf.</th><th>Methode</th></tr></thead>
           <tbody>
@@ -133,8 +133,8 @@
           {% endfor %}
           </tbody>
         </table>
-        {% else %}
-        <div class="empty">Aucune analyse pour le moment.<br>Lancez votre premiere analyse a gauche.</div>
+        {% if not analyses %}
+        <div class="empty" id="emptyMsg">Aucune analyse pour le moment.<br>Lancez votre premiere analyse a gauche.</div>
         {% endif %}
       </div>
     </div>
@@ -164,11 +164,29 @@
       document.getElementById('spinner').classList.remove('on'); runBtn.disabled=false;
       if(d.error){ alert('Erreur : '+d.error); return; }
       render(d);
-      setTimeout(()=>location.reload(), 1500); // rafraichit l'historique
+      addToHistory(d);  // met a jour l'historique SANS recharger la page
     }catch(e){ document.getElementById('spinner').classList.remove('on'); runBtn.disabled=false; alert('Erreur : '+e); }
   });
 
+  // Ajoute la nouvelle analyse en haut du tableau d'historique, sans reload
+  function addToHistory(d){
+    const table = document.querySelector('table tbody');
+    if(!table) { return; }
+    const emptyMsg = document.getElementById('emptyMsg');
+    if(emptyMsg) { emptyMsg.remove(); }  // retire le "aucune analyse"
+    const tr = document.createElement('tr');
+    const conf = (d.confidence ?? 0).toFixed(2);
+    tr.innerHTML = '<td>'+(d.filename||'-')+'</td>'
+      + '<td><span class="tag '+d.predicted_class+'">'+d.predicted_class+'</span></td>'
+      + '<td>'+conf+'</td>'
+      + '<td>'+(d.variant||variant())+'</td>';
+    table.insertBefore(tr, table.firstChild);
+  }
+
+  let lastResult = null;
+
   function render(d){
+    lastResult = d;  // memorise pour le PDF
     const cls=d.predicted_class, labels={normal:'Normal',suspected_opacity:"Suspicion d'opacite",uncertain:'Incertain'};
     const pill=document.getElementById('pill'); pill.className='pill '+cls;
     document.getElementById('pillText').textContent=labels[cls]||cls;
@@ -182,6 +200,23 @@
     document.getElementById('warn').textContent=d.warning||'';
     document.getElementById('result').style.display='block';
   }
+
+  // Telechargement du rapport PDF
+  document.getElementById('pdfBtn').addEventListener('click', async ()=>{
+    if(!lastResult){ return; }
+    try{
+      const fd=new FormData();
+      fd.append('payload', JSON.stringify(lastResult));
+      const r=await fetch('/report',{method:'POST',body:fd});
+      if(!r.ok){ const e=await r.json(); alert('Erreur PDF : '+(e.error||r.status)); return; }
+      const blob=await r.blob();
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url; a.download='rapport_diagnostic.pdf'; a.click();
+      URL.revokeObjectURL(url);
+    }catch(e){ alert('Erreur PDF : '+e); }
+  });
+
 </script>
 </body>
 </html>

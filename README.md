@@ -1,114 +1,86 @@
-# Assistant radiologue virtuel — Portail web (comptes + historique)
+# Assistant radiologue virtuel — application unifiée
 
-Portail web avec authentification et historique par utilisateur, pour le
-prototype pédagogique d'analyse de radiographies thoraciques.
+Prototype pédagogique d'analyse de radiographies thoraciques frontales.
+Une seule application qui gère : comptes utilisateurs, analyse par MedGemma 4B,
+sortie JSON structurée, garde-fous, historique et rapport PDF.
 
-**Architecture (Option A) :** ce portail gère les comptes, l'interface et la
-base de données. Il NE fait PAS tourner MedGemma. L'inférence est déléguée à un
-service séparé (ton PC avec GPU), appelé via HTTP.
+> Prototype pédagogique. Aucune valeur clinique. Ne pas utiliser pour un diagnostic.
 
-```
-[Navigateur] -> [Ce portail sur Railway] --HTTP--> [MedGemma sur ton PC via ngrok]
-```
+## Fonctionnalités
 
-## Base de données
+- Comptes utilisateurs (inscription, connexion, sessions sécurisées bcrypt).
+- Upload d'une radiographie + choix du prompt (baseline / amélioré).
+- Analyse par MedGemma 4B en 4-bit sur GPU (~6 s sur RTX 4060).
+- Sortie JSON : classe, confiance, observations, justification, limites, warning.
+- Garde-fous : seuil d'incertitude, warning systématique.
+- Historique des analyses par utilisateur.
+- Génération d'un rapport PDF épuré.
+- Journalisation SQLite + CSV.
 
-Le code s'adapte automatiquement :
-- **En local** : SQLite (fichier `webui_data/app.db`, rien à installer).
-- **Sur Railway** : PostgreSQL (permanent), détecté via la variable `DATABASE_URL`.
+## Prérequis
 
----
+- Python 3.11
+- GPU NVIDIA (le modèle tourne en 4-bit, ~3.4 Go de VRAM)
+- Un compte Hugging Face avec accès à `google/medgemma-4b-it` accepté
 
-## A. Tester en local (avant de déployer)
+## Installation
 
 ```bash
-python -m venv .venv
-# Windows : .venv\Scripts\activate    |    Mac/Linux : source .venv/bin/activate
+py -3.11 -m venv .venv
+.venv\Scripts\activate                 # Windows
+# source .venv/bin/activate            # Mac/Linux
+
+# 1) torch GPU d'abord
+pip install torch --index-url https://download.pytorch.org/whl/cu121
+# 2) le reste
 pip install -r requirements.txt
-uvicorn webui.server:app --port 9000
+# 3) authentification Hugging Face (une fois)
+hf auth login
 ```
-Ouvre http://localhost:9000 . Crée un compte, connecte-toi.
-(Les analyses nécessitent que ton service MedGemma tourne sur le port 8000.)
 
----
-
-## B. Pousser sur GitHub
+## Lancement
 
 ```bash
-git init
-git add .
-git commit -m "Portail assistant radiologue avec comptes"
-git branch -M main
-git remote add origin https://github.com/TON_PSEUDO/TON_REPO.git
-git push -u origin main
+uvicorn app.server:app --port 8000
 ```
 
----
+Au démarrage, MedGemma se charge une fois (~25 s). Attends « Modèle prêt »,
+puis ouvre http://localhost:8000 . Crée un compte, connecte-toi, analyse.
 
-## C. Déployer sur Railway (étape par étape)
+**Un seul terminal, un seul port, une seule interface.**
 
-1. Va sur railway.app, connecte-toi avec GitHub.
-2. **New Project** -> **Deploy from GitHub repo** -> choisis ton dépôt.
-3. Railway détecte Python et lance le build automatiquement.
-4. **Ajoute la base PostgreSQL** : dans ton projet Railway, clique **New** ->
-   **Database** -> **Add PostgreSQL**. Railway crée la base ET définit
-   automatiquement la variable `DATABASE_URL` pour ton app. Rien à copier.
-5. **Ajoute les variables d'environnement** (onglet Variables de ton service) :
-   - `APP_SECRET_KEY` = une longue chaîne aléatoire secrète (ex: colle 40
-     caractères au hasard). Sert à signer les cookies de session.
-   - `INFERENCE_URL` = l'URL publique de ton service MedGemma (voir section D).
-6. Railway redéploie. Clique sur l'URL publique générée (onglet Settings ->
-   Domains -> Generate Domain) pour ouvrir ton app en ligne.
+## Architecture
 
----
+```
+[Navigateur] -> [App FastAPI unique]
+                   ├── comptes (auth.py, database.py)
+                   ├── MedGemma (model.py) chargé en mémoire
+                   ├── garde-fous (prompts.py)
+                   ├── rapport PDF (report.py)
+                   └── logs (storage.py) + historique (database.py)
+```
 
-## D. Connecter ton PC (le modèle) au portail en ligne
-
-Le portail sur Railway doit pouvoir appeler MedGemma sur ton PC.
-
-1. Sur ton PC, lance le service d'inférence :
-   ```bash
-   uvicorn app.server:app --port 8000
-   ```
-2. Installe ngrok (ngrok.com), puis expose le port 8000 :
-   ```bash
-   ngrok http 8000
-   ```
-   ngrok affiche une URL du type `https://xxxx-xxxx.ngrok-free.app`.
-3. Copie cette URL dans la variable `INFERENCE_URL` sur Railway (section C.5).
-4. Tant que ton PC + ngrok tournent, le portail en ligne peut analyser des radios.
-
-> Note : sur le forfait gratuit ngrok, l'URL change à chaque redémarrage.
-> Pense à mettre à jour INFERENCE_URL sur Railway si tu relances ngrok.
-
----
-
-## Variables d'environnement (récapitulatif)
-
-| Variable | Où | Rôle |
-|----------|----|----|
-| `DATABASE_URL` | auto (Railway Postgres) | connexion base permanente |
-| `APP_SECRET_KEY` | à définir sur Railway | signature des sessions |
-| `INFERENCE_URL` | à définir sur Railway | URL du service MedGemma (ngrok) |
-
-## Sécurité
-
-- Mots de passe hachés (bcrypt), jamais en clair.
-- Sessions par cookie signé (itsdangerous), non falsifiable.
-- Dashboard protégé : redirection vers /login si non connecté.
+Contrairement à une architecture séparée, le modèle est chargé DANS l'app :
+l'analyse ne fait aucun appel réseau externe. Simple et rapide, mais nécessite
+un GPU local (donc non hébergeable sur un service sans GPU comme Railway).
 
 ## Structure
 
 ```
-├── webui/
-│   ├── server.py            routes (login, register, dashboard, analyze)
-│   ├── database.py          DB dual PostgreSQL/SQLite + bcrypt
-│   ├── auth.py              sessions par cookie signé
-│   ├── inference_client.py  appel HTTP vers MedGemma
-│   └── templates/           login.html, register.html, dashboard.html
-├── requirements.txt
-├── Procfile                 commande de lancement Railway
-├── railway.json             config Railway
-├── runtime.txt              version Python
-└── .gitignore
+app/
+├── server.py       routes (auth + analyze + report) + chargement modèle
+├── model.py        chargement MedGemma 4-bit + inférence
+├── prompts.py      prompts baseline/amélioré + garde-fous + extraction JSON
+├── report.py       génération PDF (reportlab)
+├── storage.py      logs SQLite + CSV
+├── auth.py         sessions par cookie signé
+├── database.py     comptes + historique (SQLite/PostgreSQL)
+└── templates/      login.html, register.html, dashboard.html
 ```
+
+## Sécurité & éthique
+
+- Mots de passe hachés (bcrypt), jamais en clair.
+- Sessions par cookie signé (itsdangerous).
+- Modèle `google/medgemma-4b-it` sous licence Health AI Developer Foundations,
+  non validé cliniquement. Warning affiché sur chaque analyse.

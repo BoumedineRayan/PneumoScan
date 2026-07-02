@@ -1,11 +1,14 @@
 __pycache__/
 *.pyc
-*.pyo
 .venv/
 venv/
 webui_data/
+data_outputs/
 *.db
 *.sqlite
 .env
 .DS_Store
 .vscode/
+# Ne pas committer de radios reelles / donnees medicales
+data/real/
+*.dcm
