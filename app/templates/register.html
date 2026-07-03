@@ -3,39 +3,39 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Inscription - Assistant radiologue</title>
+<title>Inscription - PneumoScan</title>
 <style>
-  :root { --green-dark:#1B5E3F; --green:#2E8B57; --green-soft:#E6F4EC;
-    --green-line:#BFE0CD; --ink:#18211C; --grey:#5C6B62; --bg:#F7FAF8; --red:#B3261E; }
+  :root {
+    --blue-dark:#1E3A8A; --blue:#3B82F6; --blue-soft:#EFF6FF;
+    --blue-line:#BFDBFE; --ink:#111827; --grey:#6B7280; --bg:#F9FAFB; --red:#B3261E; }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--ink);
     font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     display:grid; place-items:center; min-height:100vh; }
-  .card { background:#fff; border:1px solid var(--green-line); border-radius:16px;
+  .card { background:#fff; border:1px solid var(--blue-line); border-radius:16px;
     padding:36px 32px; width:100%; max-width:380px; }
-  .logo { width:44px; height:44px; border-radius:11px; background:var(--green-dark);
-    display:grid; place-items:center; color:#fff; font-weight:700; font-size:22px; margin-bottom:16px; }
-  h1 { font-size:1.35rem; color:var(--green-dark); margin:0 0 4px; }
+  .logo { width:48px; height:48px; border-radius:11px; object-fit:cover; margin-bottom:16px; display:block; }
+  h1 { font-size:1.35rem; color:var(--blue-dark); margin:0 0 4px; }
   .sub { color:var(--grey); font-size:0.88rem; margin-bottom:24px; }
   label { display:block; font-size:0.82rem; color:var(--grey); margin:14px 0 5px; }
-  input { width:100%; padding:11px 13px; border:1.5px solid var(--green-line);
+  input { width:100%; padding:11px 13px; border:1.5px solid var(--blue-line);
     border-radius:9px; font-size:0.95rem; }
-  input:focus { outline:none; border-color:var(--green); }
+  input:focus { outline:none; border-color:var(--blue); }
   .hint { font-size:0.75rem; color:var(--grey); margin-top:4px; }
-  button { width:100%; margin-top:22px; background:var(--green-dark); color:#fff;
+  button { width:100%; margin-top:22px; background:var(--blue-dark); color:#fff;
     border:0; padding:13px; border-radius:9px; font-size:1rem; font-weight:600; cursor:pointer; }
-  button:hover { background:var(--green); }
+  button:hover { background:var(--blue); }
   .alt { text-align:center; margin-top:18px; font-size:0.88rem; color:var(--grey); }
-  .alt a { color:var(--green-dark); font-weight:600; text-decoration:none; }
+  .alt a { color:var(--blue-dark); font-weight:600; text-decoration:none; }
   .error { background:#FCEBEA; color:var(--red); padding:10px 12px; border-radius:8px;
     font-size:0.85rem; margin-bottom:8px; }
 </style>
 </head>
 <body>
   <form class="card" method="post" action="/register">
-    <div class="logo">R</div>
+    <img src="/static/logo.png" alt="Logo" class="logo">
     <h1>Creer un compte</h1>
-    <div class="sub">Assistant radiologue virtuel</div>
+    <div class="sub">PneumoScan - Assistant radiologue virtuel</div>
     {% if error %}<div class="error">{{ error }}</div>{% endif %}
     <label for="username">Nom d'utilisateur</label>
     <input type="text" id="username" name="username" required autofocus>

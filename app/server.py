@@ -21,6 +21,7 @@ from fastapi import FastAPI, Request, Form, UploadFile, File
 from fastapi.responses import (
     HTMLResponse, RedirectResponse, JSONResponse, Response)
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from PIL import Image
 
 from . import database as db
@@ -42,6 +43,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Assistant radiologue virtuel", lifespan=lifespan)
+app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
 try:
     db.init_db()
 except Exception as e:
