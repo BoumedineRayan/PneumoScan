@@ -77,9 +77,9 @@ app/
 Pour l'éxécution des notebooks, veuillez vous rendres sur ces colabs publiques afin de pouvoir les éxécuter.
 
  # Notebook 1
- - https://colab.research.google.com/drive/18G0A3yjX0Y3bV93jYvLHnpttlqR0WUIc?usp=sharing
+ - https://colab.research.google.com/drive/1pBod9rFrH3f42tv5QNuqD-dHDGOpkGrO?usp=sharing
  # Notebook 2
- - https://colab.research.google.com/drive/18fzJnovbk8-NS2DYvluXjoD9S8QE21Xc?usp=sharing
+ - https://colab.research.google.com/drive/1IYHh-n6DtkajzUM3xUlB_QLyGgbCGgeI?usp=sharing
  # Notebook 3
  - https://colab.research.google.com/drive/1RoiyyR1EBa_RcgqhoTyiw2Vk34-8PQ5w?usp=sharing
 
