@@ -1,18 +1,41 @@
-# Application unifiée : comptes + MedGemma + PDF
-# --- Web ---
+# ============================================================
+# PneumoScan - Assistant radiologue virtuel
+# Dependances completes (application + notebooks + tests)
+#
+# IMPORTANT - torch (GPU) s'installe SEPAREMENT et EN PREMIER :
+#   pip install torch --index-url https://download.pytorch.org/whl/cu121
+# puis :
+#   pip install -r requirements.txt
+# ============================================================
+ 
+# --- Application web : serveur, interface, comptes ---
 fastapi>=0.115
 uvicorn[standard]>=0.30
 python-multipart>=0.0.9
 jinja2>=3.1
 bcrypt>=4.0
 itsdangerous>=2.1
-# --- Modèle MedGemma ---
+ 
+# --- Base de donnees ---
+
+psycopg2-binary>=2.9
+ 
+# --- Modele MedGemma (inference) ---
 pillow>=10.4
 transformers>=4.56
 accelerate>=0.34
 bitsandbytes>=0.43
 huggingface_hub>=0.24
+ 
 # --- Rapport PDF ---
 reportlab>=4.0
-# --- torch : installer SEPAREMENT avec la version GPU ---
-# pip install torch --index-url https://download.pytorch.org/whl/cu121
+ 
+# --- Notebooks : analyse, metriques, visualisation ---
+pandas>=2.2
+numpy>=1.26
+matplotlib>=3.8
+scikit-learn>=1.4
+kaggle>=1.6
+ 
+# --- Tests automatiques ---
+pytest>=8.0

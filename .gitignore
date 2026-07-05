@@ -9,6 +9,5 @@ data_outputs/
 .env
 .DS_Store
 .vscode/
-# Ne pas committer de radios reelles / donnees medicales
 data/real/
 *.dcm

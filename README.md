@@ -61,7 +61,8 @@ app/
 ├── storage.py      logs SQLite + CSV
 ├── auth.py         sessions par cookie signé
 ├── database.py     comptes + historique (SQLite/PostgreSQL)
-└── templates/      login.html, register.html, dashboard.html
+├── templates       login.html, register.html, dashboard.htm
+└── Test/           Test file verifiant l'intégritée du projet
 ```
 
 ## Sécurité & éthique
@@ -70,3 +71,16 @@ app/
 - Sessions par cookie signé (itsdangerous).
 - Modèle `google/medgemma-4b-it` sous licence Health AI Developer Foundations,
   non validé cliniquement. Warning affiché sur chaque analyse.
+
+## Liens Colab pour les notebooks
+
+Pour l'éxécution des notebooks, veuillez vous rendres sur ces colabs publiques afin de pouvoir les éxécuter.
+
+ # Notebook 1
+ - https://colab.research.google.com/drive/18fzJnovbk8-NS2DYvluXjoD9S8QE21Xc?usp=sharing
+ # Notebook 2
+ - https://colab.research.google.com/drive/18G0A3yjX0Y3bV93jYvLHnpttlqR0WUIc?usp=sharing
+ # Notebook 3
+ - https://colab.research.google.com/drive/1RoiyyR1EBa_RcgqhoTyiw2Vk34-8PQ5w?usp=sharing
+
+
