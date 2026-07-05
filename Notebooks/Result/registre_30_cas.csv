@@ -1,0 +1,31 @@
+cas,fichier,verite,pred_baseline,pred_improved,conf_baseline,conf_improved,erreur_baseline,erreur_improved
+1,patient64576_view1_frontal.jpg,normal,normal,normal,0.95,0.8,correct,correct
+2,patient64599_view1_frontal.jpg,normal,normal,normal,0.9,0.8,correct,correct
+3,patient64544_view1_frontal.jpg,normal,normal,normal,0.95,0.8,correct,correct
+4,patient64721_view1_frontal.jpg,normal,normal,normal,0.95,0.95,correct,correct
+5,patient64588_view1_frontal.jpg,normal,normal,normal,0.95,0.8,correct,correct
+6,patient64584_view1_frontal.jpg,normal,normal,normal,0.95,0.95,correct,correct
+7,patient64593_view1_frontal.jpg,normal,normal,normal,0.95,0.8,correct,correct
+8,patient64551_view1_frontal.jpg,normal,suspected_opacity,normal,0.6,0.8,faux positif,correct
+9,patient64716_view1_frontal.jpg,normal,normal,uncertain,0.95,0.2,correct,repli sur incertain
+10,patient64562_view1_frontal.jpg,normal,normal,normal,0.95,0.95,correct,correct
+11,patient64632_view1_frontal.jpg,suspected_opacity,uncertain,uncertain,0.2,0.2,faux negatif (opacite manquee),faux negatif (opacite manquee)
+12,patient64547_view1_frontal.jpg,suspected_opacity,normal,normal,0.95,0.8,faux negatif (opacite manquee),faux negatif (opacite manquee)
+13,patient64642_view1_frontal.jpg,suspected_opacity,uncertain,uncertain,0.2,0.2,faux negatif (opacite manquee),faux negatif (opacite manquee)
+14,patient64624_view1_frontal.jpg,suspected_opacity,normal,normal,0.9,0.7,faux negatif (opacite manquee),faux negatif (opacite manquee)
+15,patient64560_view1_frontal.jpg,suspected_opacity,uncertain,normal,0.3,0.8,faux negatif (opacite manquee),faux negatif (opacite manquee)
+16,patient64684_view1_frontal.jpg,suspected_opacity,suspected_opacity,normal,0.6,0.8,correct,faux negatif (opacite manquee)
+17,patient64666_view1_frontal.jpg,suspected_opacity,suspected_opacity,normal,0.6,0.8,correct,faux negatif (opacite manquee)
+18,patient64697_view1_frontal.jpg,suspected_opacity,suspected_opacity,normal,0.6,0.7,correct,faux negatif (opacite manquee)
+19,patient64612_view1_frontal.jpg,suspected_opacity,uncertain,uncertain,0.2,0.2,faux negatif (opacite manquee),faux negatif (opacite manquee)
+20,patient64561_view1_frontal.jpg,suspected_opacity,normal,normal,0.95,0.8,faux negatif (opacite manquee),faux negatif (opacite manquee)
+21,patient64542_view1_frontal.jpg,uncertain,normal,normal,0.95,0.95,confusion de classe,confusion de classe
+22,patient64565_view1_frontal.jpg,uncertain,uncertain,normal,0.2,0.8,correct,confusion de classe
+23,patient64671_view1_frontal.jpg,uncertain,normal,normal,0.95,0.7,confusion de classe,confusion de classe
+24,patient64585_view1_frontal.jpg,uncertain,uncertain,uncertain,0.2,0.2,correct,correct
+25,patient64708_view1_frontal.jpg,uncertain,normal,uncertain,0.95,0.2,confusion de classe,correct
+26,patient64728_view1_frontal.jpg,uncertain,suspected_opacity,uncertain,0.6,0.2,confusion de classe,correct
+27,patient64737_view1_frontal.jpg,uncertain,normal,normal,0.95,0.7,confusion de classe,confusion de classe
+28,patient64628_view1_frontal.jpg,uncertain,uncertain,normal,0.3,0.8,correct,confusion de classe
+29,patient64710_view1_frontal.jpg,uncertain,normal,normal,0.95,0.7,confusion de classe,confusion de classe
+30,patient64581_view2_frontal.jpg,uncertain,normal,normal,0.95,0.8,confusion de classe,confusion de classe
