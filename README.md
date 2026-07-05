@@ -34,7 +34,7 @@ py -3.11 -m venv .venv
 pip install torch --index-url https://download.pytorch.org/whl/cu121
 # 2) le reste
 pip install -r requirements.txt
-# 3) authentification Hugging Face (une fois)
+# 3) authentification Hugging Face
 hf auth login
 ```
 
