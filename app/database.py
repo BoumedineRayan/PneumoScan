@@ -89,6 +89,28 @@ def init_db():
                 latency_s DOUBLE PRECISION,
                 result_json TEXT
             )""")
+        cur.execute(f"""
+            CREATE TABLE IF NOT EXISTS reports (
+                id {pk},
+                user_id INTEGER NOT NULL,
+                analysis_id INTEGER,
+                created_at DOUBLE PRECISION NOT NULL,
+                filename TEXT,
+                prompt_variant TEXT,
+                predicted_class TEXT,
+                confidence DOUBLE PRECISION,
+                detail_latency_s DOUBLE PRECISION,
+                ttl_label TEXT NOT NULL,
+                expiry_ts DOUBLE PRECISION NOT NULL,
+                status TEXT NOT NULL,
+                pdf_path TEXT,
+                heatmap_path TEXT
+            )""")
+        # Migration douce : ajoute analysis_id si une ancienne table existait sans
+        try:
+            cur.execute("ALTER TABLE reports ADD COLUMN analysis_id INTEGER")
+        except Exception:
+            pass
 
 
 def create_user(username: str, password: str) -> tuple[bool, str]:
@@ -127,7 +149,7 @@ def get_username(user_id: int) -> str | None:
     return row["username"] if row else None
 
 
-def save_analysis(user_id: int, filename: str, variant: str, result: dict, latency: float):
+def save_analysis(user_id: int, filename: str, variant: str, result: dict, latency: float) -> int:
     with get_db() as con:
         cur = con.cursor()
         cur.execute(
@@ -137,6 +159,12 @@ def save_analysis(user_id: int, filename: str, variant: str, result: dict, laten
             (user_id, time.time(), filename, variant,
              result.get("predicted_class"), result.get("confidence"),
              latency, json.dumps(result, ensure_ascii=False)))
+        if USE_POSTGRES:
+            cur.execute("SELECT lastval()")
+        else:
+            cur.execute("SELECT last_insert_rowid()")
+        row = cur.fetchone()
+    return int(row[0]) if row else None
 
 
 def get_user_analyses(user_id: int, limit: int = 50) -> list[dict]:
@@ -152,3 +180,61 @@ def get_user_analyses(user_id: int, limit: int = 50) -> list[dict]:
         d["result"] = json.loads(d["result_json"]) if d.get("result_json") else {}
         out.append(d)
     return out
+
+
+# ---------------- Rapports détaillés ----------------
+
+def insert_report(user_id, filename, variant, predicted_class, confidence,
+                  detail_latency, ttl_label, created_at, expiry_ts, status,
+                  pdf_path, heatmap_path, analysis_id=None) -> int:
+    """Insère un rapport et renvoie son id."""
+    with get_db() as con:
+        cur = con.cursor()
+        cur.execute(
+            f"INSERT INTO reports (user_id, analysis_id, created_at, filename, prompt_variant, "
+            f"predicted_class, confidence, detail_latency_s, ttl_label, expiry_ts, "
+            f"status, pdf_path, heatmap_path) "
+            f"VALUES ({PH},{PH},{PH},{PH},{PH},{PH},{PH},{PH},{PH},{PH},{PH},{PH},{PH})",
+            (user_id, analysis_id, created_at, filename, variant, predicted_class, confidence,
+             detail_latency, ttl_label, expiry_ts, status, pdf_path, heatmap_path))
+        # Récupère l'id inséré (compatible SQLite/PostgreSQL)
+        if USE_POSTGRES:
+            cur.execute("SELECT lastval()")
+        else:
+            cur.execute("SELECT last_insert_rowid()")
+        row = cur.fetchone()
+    return int(row[0]) if row else None
+
+
+def get_reports_for_user(user_id: int, limit: int = 50) -> list[dict]:
+    with get_db() as con:
+        cur = _dict_cursor(con)
+        cur.execute(
+            f"SELECT * FROM reports WHERE user_id = {PH} ORDER BY created_at DESC LIMIT {PH}",
+            (user_id, limit))
+        return [dict(r) for r in cur.fetchall()]
+
+
+def get_report(report_id: int) -> dict | None:
+    with get_db() as con:
+        cur = _dict_cursor(con)
+        cur.execute(f"SELECT * FROM reports WHERE id = {PH}", (report_id,))
+        row = cur.fetchone()
+    return dict(row) if row else None
+
+
+def update_report_ttl(report_id: int, ttl_label: str, expiry_ts: float, status: str):
+    with get_db() as con:
+        cur = con.cursor()
+        cur.execute(
+            f"UPDATE reports SET ttl_label = {PH}, expiry_ts = {PH}, status = {PH} "
+            f"WHERE id = {PH}",
+            (ttl_label, expiry_ts, status, report_id))
+
+
+def mark_report_expired(report_id: int):
+    with get_db() as con:
+        cur = con.cursor()
+        cur.execute(
+            f"UPDATE reports SET status = 'expired', pdf_path = NULL, heatmap_path = NULL "
+            f"WHERE id = {PH}", (report_id,))

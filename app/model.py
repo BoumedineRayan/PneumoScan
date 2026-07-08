@@ -62,3 +62,31 @@ def run_inference(image: Image.Image, prompt: str, max_new_tokens: int = 128) ->
     latency = time.time() - t0
     decoded = proc.decode(gen[0][input_len:], skip_special_tokens=True)
     return decoded, latency
+
+
+def run_detailed_inference(image: Image.Image, prompt: str,
+                           max_new_tokens: int = 200) -> tuple[str, float]:
+    """
+    2e inférence, compacte, pour le rapport médecin (1 page).
+    Renvoie (texte_brut, latence_s). Sortie courte => génération plus rapide.
+    """
+    if _STATE["model"] is None:
+        load_model()
+    proc, model = _STATE["processor"], _STATE["model"]
+    messages = [
+        {"role": "system", "content": [{"type": "text", "text": SYSTEM_TEXT}]},
+        {"role": "user", "content": [
+            {"type": "text", "text": prompt},
+            {"type": "image", "image": image}]},
+    ]
+    inputs = proc.apply_chat_template(
+        messages, add_generation_prompt=True, tokenize=True,
+        return_dict=True, return_tensors="pt"
+    ).to(model.device)
+    input_len = inputs["input_ids"].shape[-1]
+    t0 = time.time()
+    with torch.inference_mode():
+        gen = model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False)
+    decoded = proc.decode(gen[0][input_len:], skip_special_tokens=True)
+    latency = time.time() - t0
+    return decoded, latency

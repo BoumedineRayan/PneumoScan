@@ -80,6 +80,17 @@
   .tag.suspected_opacity{ background:var(--amber-soft); color:var(--amber);}
   .tag.uncertain{ background:var(--uncertain-soft); color:var(--uncertain);}
   .empty{ color:var(--grey); font-size:0.88rem; text-align:center; padding:20px; }
+  .repcell{ white-space:nowrap; }
+  .repwrap{ display:flex; align-items:center; gap:6px; }
+  .norep{ color:#C0C7D2; }
+  .ttlSel{ padding:2px 4px; border:1px solid var(--blue-line); border-radius:6px; font-size:0.72rem; }
+  .ttlSel:disabled{ background:#F3F4F6; color:#9CA3AF; cursor:not-allowed; }
+  .dl{ display:inline-flex; align-items:center; color:var(--blue-dark); }
+  .dl:hover{ color:var(--blue); }
+  .dl.disabled{ color:#C0C7D2; pointer-events:none; cursor:not-allowed; }
+  .state{ font-size:0.7rem; color:var(--grey); margin-top:2px; }
+  .state.expired{ color:#B3261E; font-weight:600; }
+  .state.live{ color:var(--blue-dark); }
 </style>
 </head>
 <body>
@@ -130,21 +141,49 @@
           </div>
           <div id="justBlock"><strong>Justification :</strong> <span id="just"></span></div>
           <div class="warn" id="warn"></div>
-          <button type="button" class="btn-change" id="pdfBtn" style="margin-top:12px;">Télécharger le rapport PDF</button>
+          <div class="report-gen" style="margin-top:14px;">
+            <label class="hint" for="ttlSel">Durée d'accès du rapport</label>
+            <select id="ttlSel" style="width:100%; padding:9px; border:1.5px solid var(--blue-line); border-radius:8px; margin-top:4px;">
+              <option value="1sem">1 semaine</option>
+              <option value="1j" selected>1 jour</option>
+              <option value="1min">1 min</option>
+            </select>
+            <button type="button" class="run" id="reportBtn" style="margin-top:10px;">Générer le rapport détaillé</button>
+            <div class="spinner" id="reportSpinner">Génération du rapport détaillé (2ᵉ inférence)…</div>
+          </div>
         </div>
       </div>
 
       <div class="card">
         <h2>Mon historique</h2>
         <table>
-          <thead><tr><th>Fichier</th><th>Classe</th><th>Conf.</th><th>Méthode</th></tr></thead>
-          <tbody>
+          <thead><tr><th>Fichier</th><th>Classe</th><th>Conf.</th><th>Méthode</th><th>Rapport</th></tr></thead>
+          <tbody id="histBody">
           {% for a in analyses %}
-            <tr>
+            {% set rep = reports_map.get(a.id) %}
+            <tr data-analysis-id="{{ a.id }}">
               <td>{{ a.filename }}</td>
               <td><span class="tag {{ a.predicted_class }}">{{ a.predicted_class }}</span></td>
               <td>{{ "%.2f"|format(a.confidence or 0) }}</td>
               <td>{{ a.prompt_variant }}</td>
+              {% if rep %}
+              <td class="repcell" data-id="{{ rep.id }}" data-created="{{ rep.created_at }}"
+                  data-expiry="{{ rep.expiry_ts }}" data-status="{{ rep.status }}">
+                <div class="repwrap">
+                  <a class="dl" href="/report/{{ rep.id }}/download" title="Télécharger le rapport (PDF)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  </a>
+                  <select class="ttlSel">
+                    <option value="1sem" {% if rep.ttl_label=='1sem' %}selected{% endif %}>1 sem</option>
+                    <option value="1j" {% if rep.ttl_label=='1j' %}selected{% endif %}>1 j</option>
+                    <option value="1min" {% if rep.ttl_label=='1min' %}selected{% endif %}>1 min</option>
+                  </select>
+                </div>
+                <div class="state"></div>
+              </td>
+              {% else %}
+              <td class="repcell"><span class="norep">—</span></td>
+              {% endif %}
             </tr>
           {% endfor %}
           </tbody>
@@ -169,8 +208,11 @@
   document.getElementById('changeBtn').addEventListener('click',()=>fileInput.click());
   function variant(){ return document.querySelector('input[name=variant]:checked').value; }
 
+  let analyzedFile = null;
+
   runBtn.addEventListener('click', async ()=>{
     if(!fileInput.files.length) return;
+    analyzedFile = fileInput.files[0];
     runBtn.disabled=true; document.getElementById('spinner').classList.add('on');
     document.getElementById('result').style.display='none';
     const fd=new FormData(); fd.append('file',fileInput.files[0]); fd.append('variant',variant());
@@ -185,17 +227,19 @@
   });
 
   function addToHistory(d){
-    const table = document.querySelector('table tbody');
-    if(!table) { return; }
+    const tb = document.getElementById('histBody');
+    if(!tb) { return; }
     const emptyMsg = document.getElementById('emptyMsg');
     if(emptyMsg) { emptyMsg.remove(); }
     const tr = document.createElement('tr');
+    if(d.analysis_id!=null) tr.dataset.analysisId = d.analysis_id;
     const conf = (d.confidence ?? 0).toFixed(2);
     tr.innerHTML = '<td>'+(d.filename||'-')+'</td>'
       + '<td><span class="tag '+d.predicted_class+'">'+d.predicted_class+'</span></td>'
       + '<td>'+conf+'</td>'
-      + '<td>'+(d.variant||variant())+'</td>';
-    table.insertBefore(tr, table.firstChild);
+      + '<td>'+(d.variant||variant())+'</td>'
+      + '<td class="repcell"><span class="norep">—</span></td>';
+    tb.insertBefore(tr, tb.firstChild);
   }
 
   let lastResult = null;
@@ -216,20 +260,96 @@
     document.getElementById('result').style.display='block';
   }
 
-  document.getElementById('pdfBtn').addEventListener('click', async ()=>{
-    if(!lastResult){ return; }
+  // ---------- Génération du rapport détaillé (2e inférence) ----------
+  document.getElementById('reportBtn').addEventListener('click', async ()=>{
+    if(!lastResult || !analyzedFile){ alert('Lancez d\'abord une analyse.'); return; }
+    const btn=document.getElementById('reportBtn');
+    const spin=document.getElementById('reportSpinner');
+    btn.disabled=true; spin.classList.add('on');
     try{
       const fd=new FormData();
+      fd.append('file', analyzedFile);
       fd.append('payload', JSON.stringify(lastResult));
+      fd.append('ttl_label', document.getElementById('ttlSel').value);
       const r=await fetch('/report',{method:'POST',body:fd});
-      if(!r.ok){ const e=await r.json(); alert('Erreur PDF : '+(e.error||r.status)); return; }
-      const blob=await r.blob();
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');
-      a.href=url; a.download='rapport_diagnostic.pdf'; a.click();
-      URL.revokeObjectURL(url);
-    }catch(e){ alert('Erreur PDF : '+e); }
+      const d=await r.json();
+      spin.classList.remove('on'); btn.disabled=false;
+      if(d.error){ alert('Erreur rapport : '+d.error); return; }
+      placeReportInHistory(d);
+    }catch(e){ spin.classList.remove('on'); btn.disabled=false; alert('Erreur rapport : '+e); }
   });
+
+  // ---------- Rapports intégrés à l'historique ----------
+  const DL_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+
+  function fmtRemaining(s){
+    if(s<=0) return 'Expiré';
+    const d=Math.floor(s/86400), h=Math.floor((s%86400)/3600),
+          m=Math.floor((s%3600)/60), sec=s%60;
+    if(d>0) return d+' j '+h+' h';
+    if(h>0) return h+' h '+m+' min';
+    if(m>0) return m+' min '+sec+' s';
+    return sec+' s';
+  }
+
+  function refreshCell(td){
+    if(!td.dataset.id) return;                 // ligne sans rapport
+    const expiry=parseFloat(td.dataset.expiry);
+    let status=td.dataset.status;
+    const remaining=Math.max(0, Math.floor(expiry - Date.now()/1000));
+    const stateEl=td.querySelector('.state');
+    const dl=td.querySelector('.dl');
+    const sel=td.querySelector('.ttlSel');
+    if(status==='active' && remaining<=0){ status='expired'; td.dataset.status='expired'; }
+    if(status!=='active'){
+      if(stateEl){ stateEl.textContent='Expiré'; stateEl.className='state expired'; }
+      if(dl){ dl.classList.add('disabled'); dl.removeAttribute('href'); }
+      if(sel){ sel.disabled=true; }
+    }else{
+      if(stateEl){ stateEl.textContent=fmtRemaining(remaining); stateEl.className='state live'; }
+    }
+  }
+
+  function wireCell(td){
+    if(!td.dataset.id) return;
+    const sel=td.querySelector('.ttlSel');
+    if(sel && !sel.dataset.wired){
+      sel.dataset.wired='1';
+      sel.addEventListener('change', async ()=>{
+        const fd=new FormData(); fd.append('ttl_label', sel.value);
+        try{
+          const r=await fetch('/report/'+td.dataset.id+'/ttl',{method:'POST',body:fd});
+          const d=await r.json();
+          if(d && d.expiry_ts){ td.dataset.expiry=d.expiry_ts; td.dataset.status=d.status; }
+          refreshCell(td);
+        }catch(e){ alert('Erreur : '+e); }
+      });
+    }
+    refreshCell(td);
+  }
+
+  function cellInnerHTML(rep){
+    const opt=(v,l)=>'<option value="'+v+'"'+(rep.ttl_label===v?' selected':'')+'>'+l+'</option>';
+    return '<div class="repwrap">'
+      + '<a class="dl" href="/report/'+rep.id+'/download" title="Télécharger le rapport (PDF)">'+DL_ICON+'</a>'
+      + '<select class="ttlSel">'+opt('1sem','1 sem')+opt('1j','1 j')+opt('1min','1 min')+'</select>'
+      + '</div><div class="state"></div>';
+  }
+
+  function placeReportInHistory(rep){
+    const tr=document.querySelector('#histBody tr[data-analysis-id="'+rep.analysis_id+'"]');
+    if(!tr){ return; }
+    const td=tr.querySelector('.repcell');
+    if(!td){ return; }
+    td.dataset.id=rep.id; td.dataset.created=rep.created_at;
+    td.dataset.expiry=rep.expiry_ts; td.dataset.status=rep.status;
+    td.innerHTML=cellInnerHTML(rep);
+    wireCell(td);
+  }
+
+  // Initialisation + compte à rebours global (1 s)
+  document.querySelectorAll('.repcell[data-id]').forEach(wireCell);
+  setInterval(()=>document.querySelectorAll('.repcell[data-id]').forEach(refreshCell), 1000);
 </script>
 </body>
 </html>
