@@ -6,3 +6,22 @@ ts,filename,prompt_variant,predicted_class,confidence,image_quality,justificatio
 1782998332.7,WhatsApp Image 2026-06-29 at 14.57.31.jpeg,baseline,normal,0.99,good,The lungs appear clear.,no obvious opacity,No specific findings are identified.,8.8
 1783055010.6,WhatsApp Image 2026-06-29 at 14.57.31.jpeg,baseline,normal,0.99,good,The lungs appear clear.,no obvious opacity,No specific findings are identified.,7.2
 1783118872.8,WhatsApp Image 2026-06-29 at 14.57.31 (1).jpeg,baseline,uncertain,0.2,good,Possible opacity in the right lung field,one short observation,limited view of the right lung,8.3
+1783331763.2,WhatsApp Image 2026-06-29 at 14.57.31 (2).jpeg,baseline,uncertain,0.2,good,possible opacity in the right lower lung field,one short observation,limited view of the lung bases,7.2
+1783339160.7,05_normal.jpg,baseline,normal,0.9,good,The lungs appear clear.,no obvious opacity,No specific findings are identified.,27.7
+1783339402.7,05_normal.jpg,baseline,normal,0.9,good,The lungs appear clear.,no obvious opacity,No specific findings are identified.,22.4
+1783339471.2,07_normal.jpg,baseline,normal,0.99,good,The lungs appear clear.,no obvious opacity,No other findings are apparent.,25.8
+1783339519.3,05_normal.jpg,baseline,normal,0.9,good,The lungs appear clear.,no obvious opacity,No specific findings are identified.,22.0
+1783339671.6,02_normal.jpg,baseline,normal,0.9,good,The lungs appear clear.,no obvious opacity,No specific findings are identified.,22.0
+1783339737.3,02_normal.jpg,baseline,normal,0.9,good,The lungs appear clear.,no obvious opacity,No specific findings are identified.,6.4
+1783339810.0,03_normal.jpg,baseline,normal,0.9,good,The lungs appear clear.,no obvious opacity,No comparison to previous images available.,13.1
+1783339831.7,10_suspected_opacity.jpg,baseline,uncertain,0.2,good,possible opacity in the left lower lung field,one short observation,limited view of the lung bases,11.5
+1783339845.3,20_uncertain.jpg,baseline,normal,0.9,good,The lungs appear clear.,no obvious opacity,No specific findings are identified.,7.2
+1783339865.5,04_normal.jpg,baseline,normal,0.99,good,The lungs appear clear.,no obvious opacity,No specific findings are identified.,13.3
+1783339905.7,28_uncertain.jpg,baseline,normal,0.9,good,The lungs appear clear.,no obvious opacity,No comparison to previous images available.,13.5
+1783339923.2,07_normal.jpg,baseline,normal,0.99,good,The lungs appear clear.,no obvious opacity,No other findings are apparent.,6.4
+1783342587.9,24_uncertain.jpg,improved,normal,0.9,good,The lungs appear clear.,one short observation,Limited view of the lower lung fields,5.6
+1783342651.8,06_normal.jpg,baseline,normal,0.99,good,The lungs appear clear.,no obvious opacity,No specific findings are identified.,5.6
+1783496809.9,02_normal.jpg,baseline,normal,0.9,good,The lungs appear clear.,no obvious opacity,No specific findings are identified.,11.6
+1783497031.2,22_uncertain.jpg,baseline,normal,0.9,good,The lungs appear clear.,one short observation,No obvious findings,7.3
+1783497552.0,07_normal.jpg,baseline,normal,0.99,good,The lungs appear clear.,no obvious opacity,No other findings are apparent.,8.9
+1783497684.0,02_normal.jpg,baseline,normal,0.9,good,Pas d'opacité pulmonaire évidente,une courte observation,Pas de détails sur le contexte,9.9

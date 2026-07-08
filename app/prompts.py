@@ -7,24 +7,49 @@ et tienne sous max_new_tokens=128 sans troncature.
 import json
 import re
 
-WARNING = ("Educational prototype only. Not for diagnosis. "
-           "A qualified clinician must verify the image.")
+WARNING = ("Prototype pédagogique uniquement. Ne pas utiliser pour un diagnostic. "
+           "L'image doit être vérifiée par un clinicien qualifié.")
 
 VALID_CLASSES = {"normal", "suspected_opacity", "uncertain"}
 VALID_QUALITY = {"good", "limited", "poor"}
 UNCERTAINTY_THRESHOLD = 0.60
 
-BASELINE_PROMPT = """You are an educational radiology assistant. You are not a clinician and must not give a diagnosis.
-Analyze this frontal chest X-ray: normal vs suspected lung opacity vs uncertain.
-Return ONLY compact valid JSON, no extra text, with exactly these keys:
-{"image_quality":"good|limited|poor","predicted_class":"normal|suspected_opacity|uncertain","confidence":0.0,"visual_evidence":"one short observation","justification":"one short sentence","limitations":"one short limitation"}
-Rules: do not invent findings; use "uncertain" if evidence is weak; keep every field very short."""
+# Tolérance : si le modèle renvoie les valeurs énumérées en français,
+# on les remappe vers les valeurs anglaises attendues par le contrat de sortie.
+CLASS_ALIASES = {
+    "incertain": "uncertain",
+    "normale": "normal",
+    "normal": "normal",
+    "opacite_suspectee": "suspected_opacity",
+    "opacité_suspectée": "suspected_opacity",
+    "opacite suspectee": "suspected_opacity",
+    "opacité suspectée": "suspected_opacity",
+    "suspicion_opacite": "suspected_opacity",
+    "suspicion d'opacite": "suspected_opacity",
+    "suspicion d'opacité": "suspected_opacity",
+}
+QUALITY_ALIASES = {
+    "bonne": "good",
+    "correcte": "good",
+    "limitee": "limited",
+    "limitée": "limited",
+    "mauvaise": "poor",
+    "faible": "poor",
+}
 
-IMPROVED_PROMPT = """You are an educational radiology assistant. You are not a clinician and must not give a diagnosis.
-Analyze this frontal chest X-ray under strict uncertainty rules. If the finding could be due to projection, rotation or poor exposure, lower confidence and prefer "uncertain".
-Return ONLY compact valid JSON, no extra text, with exactly these keys:
-{"image_quality":"good|limited|poor","predicted_class":"normal|suspected_opacity|uncertain","confidence":0.0,"visual_evidence":"one short observation","justification":"one short sentence","limitations":"one short limitation"}
-Rules: no invented findings; if confidence < 0.60, predicted_class must be "uncertain"; keep every field very short."""
+BASELINE_PROMPT = """Tu es un assistant pédagogique en radiologie. Tu n'es pas un clinicien et tu ne dois pas poser de diagnostic.
+Analyse cette radiographie thoracique de face : normale vs opacité pulmonaire suspectée vs incertain.
+Retourne UNIQUEMENT un JSON compact et valide, sans texte supplémentaire, avec exactement ces clés :
+{"image_quality":"good|limited|poor","predicted_class":"normal|suspected_opacity|uncertain","confidence":0.0,"visual_evidence":"une courte observation","justification":"une courte phrase","limitations":"une courte limite"}
+Règles : n'invente pas de constatations ; utilise "uncertain" si les indices sont faibles ; garde chaque champ très court.
+Langue : rédige visual_evidence, justification et limitations en FRANÇAIS. Les valeurs de image_quality et predicted_class restent exactement parmi les mots anglais listés ci-dessus."""
+
+IMPROVED_PROMPT = """Tu es un assistant pédagogique en radiologie. Tu n'es pas un clinicien et tu ne dois pas poser de diagnostic.
+Analyse cette radiographie thoracique de face selon des règles strictes de gestion de l'incertitude. Si la constatation peut être due à la projection, à une rotation ou à une mauvaise exposition, baisse la confiance et privilégie "uncertain".
+Retourne UNIQUEMENT un JSON compact et valide, sans texte supplémentaire, avec exactement ces clés :
+{"image_quality":"good|limited|poor","predicted_class":"normal|suspected_opacity|uncertain","confidence":0.0,"visual_evidence":"une courte observation","justification":"une courte phrase","limitations":"une courte limite"}
+Règles : aucune constatation inventée ; si confidence < 0.60, predicted_class doit être "uncertain" ; garde chaque champ très court.
+Langue : rédige visual_evidence, justification et limitations en FRANÇAIS. Les valeurs de image_quality et predicted_class restent exactement parmi les mots anglais listés ci-dessus."""
 
 PROMPTS = {"baseline": BASELINE_PROMPT, "improved": IMPROVED_PROMPT}
 
@@ -49,9 +74,15 @@ def _as_list(v):
 
 def apply_safeguards(result: dict, variant: str) -> dict:
     """Normalise les champs, applique la règle d'incertitude, force le warning."""
-    if result.get("predicted_class") not in VALID_CLASSES:
+    # Tolérance aux valeurs énumérées renvoyées en français
+    pc = str(result.get("predicted_class", "")).strip().lower()
+    result["predicted_class"] = CLASS_ALIASES.get(pc, pc)
+    iq = str(result.get("image_quality", "")).strip().lower()
+    result["image_quality"] = QUALITY_ALIASES.get(iq, iq)
+
+    if result["predicted_class"] not in VALID_CLASSES:
         result["predicted_class"] = "uncertain"
-    if result.get("image_quality") not in VALID_QUALITY:
+    if result["image_quality"] not in VALID_QUALITY:
         result["image_quality"] = "limited"
     try:
         conf = float(result.get("confidence", 0.0))

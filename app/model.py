@@ -16,7 +16,9 @@ MODEL_ID = "google/medgemma-4b-it"
 
 _STATE = {"model": None, "processor": None}
 
-SYSTEM_TEXT = "You are a cautious educational radiology assistant. You never give a definitive diagnosis."
+SYSTEM_TEXT = ("Tu es un assistant pédagogique prudent en radiologie. "
+               "Tu ne poses jamais de diagnostic définitif. "
+               "Tu réponds toujours en français, sauf pour les valeurs énumérées imposées par le format JSON.")
 
 
 def load_model():
