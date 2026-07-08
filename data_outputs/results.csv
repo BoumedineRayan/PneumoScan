@@ -1,2 +1,7 @@
 ts,filename,prompt_variant,predicted_class,confidence,image_quality,justification,visual_evidence,limitations,latency_s
 1783517406.1,10_suspected_opacity.jpg,baseline,uncertain,0.2,good,"l'image est de qualité bonne, mais il est difficile de déterminer avec certitude",une courte observation,l'image est de face,22.2
+1783517647.8,03_normal.jpg,baseline,normal,0.9,good,pas d'opacité pulmonaire évidente,une courte observation,pas de limite,6.1
+1783517660.7,17_suspected_opacity.jpg,baseline,uncertain,0.2,good,"l'image est de qualité bonne, mais il est difficile de déterminer la présence d'une opacité pulmonaire",une courte observation,"l'image est une radiographie thoracique de face, sans informations supplémentaires",8.8
+1783517742.1,09_normal.jpg,improved,normal,0.9,good,image de qualité bonne,une courte observation,projection,5.4
+1783518200.8,05_normal.jpg,baseline,normal,0.9,good,Pas d'opacité pulmonaire évidente,une courte observation,image de face,6.6
+1783518435.5,Logo.png,baseline,normal,0.99,good,l'image est de bonne qualité et ne montre pas d'opacité pulmonaire,une courte observation,l'image est une représentation graphique,8.7
