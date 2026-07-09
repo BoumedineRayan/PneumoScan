@@ -78,8 +78,12 @@ Pour l'éxécution des notebooks, veuillez vous rendres sur ces colabs publiques
 
  # Notebook 1
  - https://colab.research.google.com/drive/1pBod9rFrH3f42tv5QNuqD-dHDGOpkGrO?usp=sharing
+
+
  # Notebook 2
  - https://colab.research.google.com/drive/1IYHh-n6DtkajzUM3xUlB_QLyGgbCGgeI?usp=sharing
+
+ 
  # Notebook 3
  - https://colab.research.google.com/drive/1RoiyyR1EBa_RcgqhoTyiw2Vk34-8PQ5w?usp=sharing
 
